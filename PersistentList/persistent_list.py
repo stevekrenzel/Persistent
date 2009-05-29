@@ -59,8 +59,8 @@ class PersistentNode:
 
     def set_value(self, *value):
         data = self.get_data() 
-        data = list(value) + data[-1]
-        self.set_bytes(data)
+        data = list(value) + [data[-1]]
+        self.set_data(data)
 
     def set_next(self, next):
         data = self.get_data() 
