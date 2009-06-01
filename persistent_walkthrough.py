@@ -1,17 +1,7 @@
 #!/usr/bin/python
 import os
 from itertools import izip
-from persistent_list import PersistentList
-
-######################################################################
-# Here is our persistent integer list
-# Each node in the list stores an array of integers, the default
-# is just one integer
-######################################################################
-class IntegerList(PersistentList):
-    def __init__(self, file_object, number_of_ints=1, address=0):
-        PersistentList.__init__(self, file_object, "I"*number_of_ints,
-                address=address)
+from Persistent import IntegerList
 
 ######################################################################
 # Now we'll run through a couple simple use cases for 
@@ -26,7 +16,7 @@ if not os.path.exists(filename):
 db = open(filename, "r+b")
 
 ######################################################################
-# Create three individual lists, but all will be stored in the
+# Create three individual integer lists, but all will be stored in the
 # same file. One list will store even numbers, one will store
 # odd numbers, and one will store tuples of (even, odd) pairs.
 ######################################################################
