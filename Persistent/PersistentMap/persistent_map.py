@@ -35,7 +35,7 @@ class PersistentMap:
     def set(self, key, value):
         key_vals = self.__get_key_value_list__(key)
         if key_vals is None:
-            key_vals = KeyValueList(self.file_object, self.key_format, self.value_format)
+            key_vals = self.__make_list__(self.file_object, self.key_format, self.value_format)
             key_vals.set(key, value)
             self.__set_key_value_list__(key, key_vals)
         else:
@@ -51,7 +51,7 @@ class PersistentMap:
         self.file_object.seek(position)
         address = unpack(self.address_format, self.file_object.read(self.address_size))[0]
         if address != self.invalid_address:
-            return KeyValueList(self.file_object, self.key_format, self.value_format, address)
+            return self.__make_list__(self.file_object, self.key_format, self.value_format, address)
 
     def __set_key_value_list__(self, key, key_value_list):
         position = self.__get_hash__(key) 
@@ -60,4 +60,7 @@ class PersistentMap:
 
     def __get_hash__(self, key):
         return self.address + ((hash(key) % self.num_of_keys) * self.address_size)
+
+    def __make_list__(self, file_object, key_format, value_format, address=None):
+        return KeyValueList(file_object, key_format, value_format, address)
 
