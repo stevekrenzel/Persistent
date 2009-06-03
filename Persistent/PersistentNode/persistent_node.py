@@ -1,24 +1,24 @@
-############################################
-# Released in the Public Domain, do with it
-# as you please.
-#
-# Author: Steve Krenzel (sgk284@gmail.com)
-############################################
+###############################################################################
+# The author or authors of this code dedicate any and all copyright interest in
+# this code to the public domain. We make this dedication for the benefit of
+# the public at large and to the detriment of our heirs and successors. We
+# intend this dedication to be an overt act of relinquishment in perpetuity of
+# all present and future rights to this code under copyright law.
+###############################################################################
 
 from struct import pack, unpack, calcsize
 
 class PersistentNode:
     def __init__(self, file_object, value_format, value = None, next = None, address=None):
         self.file_object  = file_object
-        self.value_format = value_format
-        self.value_length = calcsize(self.value_format)
-        self.data_format  = self.value_format + "I" # Add pointer 
+        self.node_maker   = lambda address: PersistentNode(file_object, value_format, address=address)
+        self.data_format  = value_format + "I" # Add pointer 
         self.data_length  = calcsize(self.data_format)
         if address == None or address == 0:
-            self.file_object.seek(0, 2)
-            value = [0]*self.value_length if value is None else list(value)
+            value = [0]*calcsize(value_format) if value is None else list(value)
             value.append(0 if next is None else next.address)
             self.bytes = pack(self.data_format, *value)
+            self.file_object.seek(0, 2)
             self.file_object.write(self.bytes)
             self.address = self.file_object.tell()
         else:
@@ -42,8 +42,8 @@ class PersistentNode:
         self.set_data(data)
 
     def set_data(self, data):
-        self.file_object.seek(self.address - self.data_length)
         self.bytes = pack(self.data_format, *data)
+        self.file_object.seek(self.address - self.data_length)
         self.file_object.write(self.bytes)
 
     def get_value(self):
@@ -57,7 +57,7 @@ class PersistentNode:
     def get_next(self):
         next = self.get_data()[-1]
         if next != 0:
-            return PersistentNode(self.file_object, self.value_format, address=next)
+            return self.node_maker(next)
         return None
 
     def get_data(self):

@@ -11,6 +11,8 @@ class KeyValueList(PersistentList):
         PersistentList.__init__(self, file_object, key_format + val_format, address)
 
     def set(self, key, value):
+        # TODO Change this to delete node and append new one
+        # TODO Move StringStringList to inherit from KeyValueList
         for node in self.node_iter():
             cur_key, cur_val = self.__get_key_val__(node)
             if cur_key == key:
