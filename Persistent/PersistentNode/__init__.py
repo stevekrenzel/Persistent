@@ -5,4 +5,5 @@
 # intend this dedication to be an overt act of relinquishment in perpetuity of
 # all present and future rights to this code under copyright law.
 ###############################################################################
+
 from persistent_node import PersistentNode
