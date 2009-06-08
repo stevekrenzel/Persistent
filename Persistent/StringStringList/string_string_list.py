@@ -31,9 +31,9 @@ class StringStringList(PersistentList):
             if cur_key == key:
                 return cur_val
 
-    def node_value_iter(self):
-        for i in self.node_iter():
-            yield(i, tuple(i.get_value()[:-1]))
+    def items(self):
+        for node, value in PersistentList.items(self):
+            yield(node, value[:-1])
 
     def __add_key_val__(self, key, val):
         self.file_object.seek(0, 2)

@@ -20,10 +20,10 @@ class PersistentList:
     def __init__(self, file_object, value_format, address=None):
         """Initiates the persistent list. I hate useless comments like this."""
 
-        self.file_object  = file_object
-        self.value_format = value_format
-        self.head         = None
-        self.tail         = None
+        self.file_object     = file_object
+        self.value_format    = value_format
+        self.head            = None
+        self.tail            = None
 
         # We do lazy loading of the tailx because to find it the first time we
         # need to iterate through all of the nodes. We don't actually need to
@@ -39,7 +39,7 @@ class PersistentList:
         self.tail_set = False
 
         # If an address is provided, we load the head node from disk
-        if address != None and address != 0:
+        if address != None and address != PersistentNode.invalid_address:
             self.head = PersistentNode(self.file_object, self.value_format, address=address)
 
     def __set_tail__(self):
@@ -86,8 +86,7 @@ class PersistentList:
         # If the value is of length one, we just use the value (by taking it out
         # of the list). This is for compatibility with the way PersistentNode
         # returns values.
-        if len(value) == 1:
-            value = value[0]
+        value = value[0] if len(value) == 1 else list(value)
 
         for node, node_val in self.items():
             if node_val == value:
@@ -106,6 +105,10 @@ class PersistentList:
         # need it to remove the current node.
         prev_node = None
         
+        # We set node incase there are no items, we still reference it and it
+        # otherwise wouldn't get set
+        node = None
+
         # We iterate through the list and break out of the loop when we find
         # the node we want to delete.
         for node, node_val in self.items():
@@ -113,7 +116,8 @@ class PersistentList:
                 break
             prev_node = node
 
-        next = node.get_next()
+        # Make sure node isn't none, and if not save it's next node
+        next = node and node.get_next()
 
         # If no previous node was set, that means this is the head
         if prev_node is None:

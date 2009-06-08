@@ -24,6 +24,7 @@ class PersistentNode:
     past the 4GB point in a file.
 
     """
+    invalid_address = 0#2**32 - 1
 
     def __init__(self, file_object, value_format, value = None, next = None, address=None):
         """If the adddress is not set, or set to an invalid address, we'll
@@ -45,21 +46,23 @@ class PersistentNode:
         # The data format is the value format plus the pointer
         self.data_format = value_format + "I" # Add pointer 
         self.data_length = calcsize(self.data_format)
+        #self.data_length = 0
 
         # If the address isn't set, we create a new node at the end of the file
-        if address == None or address == 0:
+        if address == None or address == PersistentNode.invalid_address:
             # Zero out the values if a value isn't given
             value = [0]*calcsize(value_format) if value is None else list(value)
 
             # Make the pointer null if one isn't given 
-            value.append(0 if next is None else next.address)
+            value.append(PersistentNode.invalid_address if next is None else \
+                    next.address)
             self.data  = value
 
             # Seek to the end of the file and write the data
             self.file_object.seek(0, 2)
-            self.file_object.write(pack(self.data_format, *self.data))
 
-            # Store the address of the end of the node
+            self.file_object.write(pack(self.data_format, *self.data))
+            # Store the address of the node
             self.address = self.file_object.tell()
         else:
             # If we make it here, a node is already on disk. We just read it.
@@ -85,7 +88,8 @@ class PersistentNode:
         next node in the linked list.
 
         """
-        self.set_next_address(next.address)
+        if next is not None:
+            self.set_next_address(next.address)
 
     def set_next_address(self, next_address):
         """Whereas set_next() accepts a node as an argument, this accepts the
@@ -114,6 +118,10 @@ class PersistentNode:
         # value is a list, but if it only has one element we only return that
         # element (not in a list)
         return value if len(value) > 1 else value[0] 
+
+    def get_bytes(self):
+        return pack(self.data_format, *self.data)
+
 
     def get_next_address(self):
         """Returns the address of the next node."""
