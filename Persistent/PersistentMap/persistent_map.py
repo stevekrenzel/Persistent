@@ -94,20 +94,38 @@ class PersistentMap:
             return key_vals.get(key)
 
     def __get_key_value_list__(self, key):
-        position = self.__get_hash__(key) 
+        """Returns the KeyValueList that a key will be in if the key exists in
+        the map somewhere.
+
+        """
+
+        # Find the position of the bucket for the key
+        position = self.__get_position__(key) 
         self.file_object.seek(position)
+        
+        # Read in the address of the list from the bucket and if it's a valid
+        # address we return an instance of the list
         address = unpack(self.address_format, self.file_object.read(self.address_size))[0]
         if address != self.invalid_address:
             return self.__make_list__(self.file_object, self.key_format, self.value_format, address)
 
     def __set_key_value_list__(self, key, key_value_list):
-        position = self.__get_hash__(key) 
+        "Given a key and an associated KeyValuelist, we set that address for
+        that list in the associated bucket for that key.
+
+        """
+        position = self.__get_position__(key) 
         self.file_object.seek(position)
         self.file_object.write(pack(self.address_format, key_value_list.head.address))
 
-    def __get_hash__(self, key):
+    def __get_position__(self, key):
+        """Given a key, returns the position of the bucket including any offsets
+        in the address space.
+
+        """
         return self.address + ((hash(key) % self.num_of_keys) * self.address_size)
 
     def __make_list__(self, file_object, key_format, value_format, address=None):
+        """Returns a KeyValueList to be used in a bucket. """
         return KeyValueList(file_object, key_format, value_format, address)
 
