@@ -8,8 +8,13 @@
 from Persistent import PersistentMap, StringStringList
 
 class StringStringMap(PersistentMap):
+    """ StringStringMap maps strings to strings. """ 
     def __init__(self, file_object, map_size, address=None):
         PersistentMap.__init__(self, file_object, None, None, map_size, address)
 
     def __make_list__(self, file_object, key_format, value_format, address=None):
-       return StringStringList(file_object, address) 
+        """ This allows us to use other forms of lists with the map buckets.
+        In this case, since strings are variable width we need to use the
+        custom StringStringList.
+        """
+        return StringStringList(file_object, address) 

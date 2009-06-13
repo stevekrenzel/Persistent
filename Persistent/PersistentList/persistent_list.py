@@ -18,8 +18,6 @@ class PersistentList:
     """
 
     def __init__(self, file_object, value_format, address=None):
-        """Initiates the persistent list. I hate useless comments like this."""
-
         self.file_object     = file_object
         self.value_format    = value_format
         self.head            = None
