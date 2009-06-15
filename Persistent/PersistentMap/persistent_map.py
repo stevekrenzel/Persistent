@@ -110,7 +110,7 @@ class PersistentMap:
             return self.__make_list__(self.file_object, self.key_format, self.value_format, address)
 
     def __set_key_value_list__(self, key, key_value_list):
-        "Given a key and an associated KeyValuelist, we set that address for
+        """Given a key and an associated KeyValuelist, we set that address for
         that list in the associated bucket for that key.
 
         """
