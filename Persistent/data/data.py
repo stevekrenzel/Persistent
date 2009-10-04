@@ -25,8 +25,8 @@ class Data:
 
             # Seek to the end of the file and write the data
             self.file_object.seek(0, 2)
+            self.address = self.file_object.tell()
             self.file_object.write(pack(self.format, *self.value))
-            self.address = self.file_object.tell() - self.size
         else:
             # Seek to the start of the node.
             self.file_object.seek(self.address)
@@ -49,13 +49,16 @@ class Data:
         self.file_object.seek(self.address)
         self.file_object.write(pack(self.format, *self.value))
 
+    def __str__(self):
+        return"[" + ", ".join("%s:%s"%(name, self[name]) for name in self.names) + "]"
+
     def get(self):
         return self.value
 
 if __name__ == "__main__":
     import os
 
-    filename = "fixed_width_test.db"
+    filename = "data_test.db"
     # Create the file if it doesn't exist
     if not os.path.exists(filename):
         open(filename, 'w').close()
@@ -65,15 +68,13 @@ if __name__ == "__main__":
     age    = 10
     name   = "Steve"
     data   = Data(db, format)
-    print data["age"]
-    print data["name"]
+    print data
     data["age"]  = age
     data["name"] = name
-    print data["age"]
-    print data["name"]
+    print data
     db.close()
     db = open(filename, "r+b")
-    data = FixedWidthData(db, format, data.address)
-    print data["age"]
-    print data["name"]
+    data = Data(db, format, data.address)
+    print data
+    db.close()
     os.remove(filename)
