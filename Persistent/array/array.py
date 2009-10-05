@@ -7,7 +7,6 @@
 ###############################################################################
 
 from Persistent import Data
-from time import time
 from struct import pack, unpack, calcsize
 
 class Array:
@@ -36,7 +35,7 @@ class Array:
             self.file_object.seek(self.address)
 
             # Set the size of the array
-            self.size = unpack("q", self.file_object.read(calcsize("q")))
+            self.size = unpack("q", self.file_object.read(calcsize("q")))[0]
 
     def __allocate_space__(self, size):
         # We write half a megabyte at a time
