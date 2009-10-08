@@ -20,6 +20,7 @@ class FixedArray:
         self.size            = allocation*self.format_size
         self.address         = address
         self.last_item       = (-1, None)
+        # TODO Write all construction information to disk
 
         # We allocate space at the end of the file if there is no address
         if self.address == None:

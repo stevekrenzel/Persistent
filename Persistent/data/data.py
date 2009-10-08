@@ -39,8 +39,6 @@ class Data:
                 # Read in the data and store it
                 self.bytes = self.file_object.read(self.size)
                 self.value = list(unpack(self.format, self.bytes))
-            else:
-                print "Using cached data"
 
     def __getitem__(self, name):
         if self.bytes == self.empty_cell:
