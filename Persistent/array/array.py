@@ -10,7 +10,7 @@ from struct import pack, unpack, calcsize
 from time import time
 from fixed_array import FixedArray
 
-class Array:
+class Array(list):
 
     def __init__(self, format, file_object, initial_allocation=1024, address=None):
         self.file_object        = file_object
@@ -66,15 +66,23 @@ class Array:
         # Each new allocation doubles the size of the previous one
         self.initial_allocation = 2 * self.initial_allocation
 
-    def __setitem__(self, index, *values):
+    def __len__(self):
+        return sum(a.size/self.format_size for a in self.arrays)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    def __setitem__(self, index, data):
         total = 0
         for a in self.arrays:
             diff  = (a.size / self.format_size)
             if index < (total + diff):
-                a.__setitem__(index - total, *values)
+                a.__setitem__(index - total, data)
+                return
             total = total + diff
         self.add_array()
-        self.__setitem__(index, *values)
+        self.__setitem__(index, data)
 
     def __getitem__(self, index):
         total = 0
@@ -84,11 +92,10 @@ class Array:
                 g = a[index - total]
                 return a[index - total]
             total = total + diff
-        self.add_array()
-        return self.__getitem__(index)
 
 if __name__ == "__main__":
     import os
+    from random import randint
 
     filename = "vector_test.db"
     # Create the file if it doesn't exist
@@ -96,27 +103,22 @@ if __name__ == "__main__":
         open(filename, 'w').close()
 
     db     = open(filename, "r+b")
-    format = "I:age, 10p:name"
-    size   = 1
-    num    = 100000
+    format = "I:age"
+    size   = 100
+    num    = 10000000
     vector = Array(format, db, initial_allocation = size)
-    t = time()
-    for i in range(num):
-        vector[i]["age"] = i
-    print time() - t
 
     t = time()
-    for i in range(num):
-        if vector[i]["age"] != i:
-            print "OH NO!"
+    for i in xrange(num):
+        vector[i]["age"] = randint(0, 100000)
     print time() - t
-    db.close()
-    db = open(filename, "r+b")
-    vector = Array(format, db, address = vector.address)
+
+    a = 1
     t = time()
-    for i in range(num):
-        if vector[i]["age"] != i:
-            print "OH NO!"
+    for i in xrange(num):
+        a += vector[i]["age"]
     print time() - t
+    print a
+
     db.close()
-    os.remove(filename)
+    #os.remove(filename)

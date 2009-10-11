@@ -65,6 +65,9 @@ class Data:
     def __str__(self):
         return"[" + ", ".join("%s:%s"%(name, self[name]) for name in self.names) + "]"
 
+    def __cmp__(self, other):
+        return cmp(self.value, other.value if other != None else other)
+
     def get(self):
         if self.bytes == self.empty_cell:
             return None
