@@ -12,6 +12,9 @@ from fixed_set import FixedSet
 
 class Hashset:
 
+    set_cnt = 0
+    get_cnt = 0
+
     def __init__(self, format, file_object, initial_allocation=1024, address=None):
         self.file_object        = file_object
         self.format             = format
@@ -68,11 +71,9 @@ class Hashset:
         self.initial_allocation = 2 * self.initial_allocation
 
     def set(self, data):
-        for a in self.sets:
-            if a.set(data) == True:
-                return
+        if self.sets[0].set(data) == True:
+            return
         self.add_set()
-        print "ADDING SET"
         self.set(data)
 
     def get(self, data):
@@ -89,31 +90,39 @@ if __name__ == "__main__":
     import os
     from random import randint, seed
     from Persistent import Data
+    from time import time
     seed(6)
 
     filename = "hashset_test.db"
-    rands    = set([randint(0, 50000000) for i in xrange(30)])
+    rands    = set([randint(0, 50000000) for i in xrange(100000)])
+    data    = []
     format   = "I:age, 20p:name"
+    for r in rands:
+        d = Data(format)
+        d["age"]  = r
+        d["name"] = "Steve"
+        data.append(d)
 
-    d         = Data(format)
-    d["age"]  = 9
-    d["name"] = "Steve"
+    print len(rands)
+    del(rands)
 
+    #TODO FixeSet.set can probably just read in bytes find the address, seek and write the raw bytes without needing to create a Data() instance
     # Create the file if it doesn't exist
     if not os.path.exists(filename):
         open(filename, 'w').close()
     db = open(filename, "r+b")
 
     hashset  = Hashset(format, db, 1)
-    for i, e in enumerate(rands):
-        d["age"] = e
-        hashset.set(d)
-        print "SET ", d
 
-    print "-----"
-    for i, e in enumerate(rands):
-        d["age"] = e
-        print hashset.get(d)
+    t = time()
+    for d in data:
+        hashset.set(d)
+    print time() - t
+
+    t = time()
+    for d in data:
+        hashset.get(d)
+    print time() - t
 
     db.close()
     os.remove(filename)

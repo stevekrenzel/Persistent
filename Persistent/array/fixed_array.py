@@ -19,7 +19,6 @@ class FixedArray:
         self.format_size     = calcsize(self.cleaned_format)
         self.size            = allocation*self.format_size
         self.address         = address
-        self.last_item       = (-1, None)
         # TODO Write all construction information to disk
 
         # We allocate space at the end of the file if there is no address
@@ -57,14 +56,10 @@ class FixedArray:
         self.file_object.write(zeroed_block)
 
     def __setitem__(self, index, data):
-        self[index].set(*data.value)
+        self[index].set(data.values)
 
     def __getitem__(self, index):
-        d = self.last_item[1]
-        if index != self.last_item[0]:
-            d = Data(self.format, self.file_object, self.__get_address__(index))
-        self.last_item = (index, d)
-        return d
+        return Data(self.format, self.file_object, self.__get_address__(index))
 
     def __get_address__(self, index):
         return self.address + calcsize("q") + (index * self.format_size)

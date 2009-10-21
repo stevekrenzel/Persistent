@@ -11,14 +11,15 @@ from struct import pack, unpack, calcsize
 class Data:
 
     def __init__(self, format, file_object=None, address=None, bytes=None):
-        self.file_object = file_object
-        self.format      = "".join(i.split(":")[0].strip() for i in format.split(","))
-        self.names       = [i.split(":")[1].strip() for i in format.split(",")]
-        self.size        = calcsize(self.format)
-        self.address     = address
-        self.empty_cell  = chr(255) * self.size
-        self.bytes       = self.empty_cell if bytes == None else bytes
-        self.value       = list(unpack(self.format, self.bytes))
+        self.file_object        = file_object
+        format                  = format.split(",")
+        self.format, self.names = zip(*[i.split(":") for i in format])
+        self.format             = "".join(self.format)
+        self.size               = calcsize(self.format)
+        self.address            = address
+        self.empty_cell         = chr(255) * self.size
+        self.bytes              = bytes or self.empty_cell
+        self.values             = {}
 
         if self.file_object != None:
             # We allocate space at the end of the file if there is no address
@@ -32,27 +33,24 @@ class Data:
             elif self.bytes == self.empty_cell:
                 # If we haven't been given the bytes for this data,
                 # read it in
-
-                # Seek to the start of the node.
                 self.file_object.seek(self.address)
-
-                # Read in the data and store it
                 self.bytes = self.file_object.read(self.size)
-                self.value = list(unpack(self.format, self.bytes))
+
+        values = unpack(self.format, self.bytes)
+        for name, value in zip(self.names, values):
+            self.values[name] = value
 
     def __getitem__(self, name):
-        if self.bytes == self.empty_cell:
-            return None
-        return self.value[self.names.index(name)]
+        return self.values[name]
 
     def __setitem__(self, name, value):
-        self.value[self.names.index(name)] = value
-        self.set(*self.value)
+        self.values[name] = value
+        self.set(self.values)
 
-    def set(self, *value):
+    def set(self, values):
         # Store the value in memory for quick access later
-        self.value = list(value)
-        self.bytes = pack(self.format, *self.value)
+        self.values = values
+        self.bytes  = pack(self.format, *[values[name] for name in self.names])
 
         if self.file_object != None:
             # Seek to our spot on disk and write the new value
@@ -60,18 +58,16 @@ class Data:
             self.file_object.write(self.bytes)
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        return self.values == other.values if other != None else None
 
     def __str__(self):
-        return"[" + ", ".join("%s:%s"%(name, self[name]) for name in self.names) + "]"
+        return str(self.values)
 
     def __cmp__(self, other):
-        return cmp(self.value, other.value if other != None else other)
+        return cmp(self.values, other.values if other != None else None)
 
     def get(self):
-        if self.bytes == self.empty_cell:
-            return None
-        return self.value
+        return self.values
 
 if __name__ == "__main__":
     import os

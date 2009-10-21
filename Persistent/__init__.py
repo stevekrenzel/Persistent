@@ -6,5 +6,5 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 from data              import Data
-from array             import Array
+from array             import Array, FixedArray
 from hashset           import Hashset

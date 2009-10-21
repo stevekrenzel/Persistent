@@ -89,9 +89,10 @@ class Array(list):
         for a in self.arrays:
             diff  = (a.size / self.format_size)
             if index < (total + diff):
-                g = a[index - total]
                 return a[index - total]
             total = total + diff
+        self.add_array()
+        return self.__getitem__(index)
 
 if __name__ == "__main__":
     import os
@@ -105,20 +106,20 @@ if __name__ == "__main__":
     db     = open(filename, "r+b")
     format = "I:age"
     size   = 100
-    num    = 10000000
+    num    = 100000
     vector = Array(format, db, initial_allocation = size)
+    nums   = [randint(0, 100000000) for i in xrange(num)]
 
     t = time()
-    for i in xrange(num):
-        vector[i]["age"] = randint(0, 100000)
+    for i, e in enumerate(nums):
+        vector[i]["age"] = e
     print time() - t
 
-    a = 1
     t = time()
-    for i in xrange(num):
-        a += vector[i]["age"]
+    for i, e in enumerate(nums):
+        if vector[i]["age"] != e:
+            print "Shit"
     print time() - t
-    print a
 
     db.close()
-    #os.remove(filename)
+    os.remove(filename)
