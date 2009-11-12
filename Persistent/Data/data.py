@@ -69,23 +69,26 @@ class Data:
     def get(self):
         return self.values
 
-if __name__ == "__main__":
-    main()
-
 def main():
     import os
 
-    filename = "data_test.db"
+    #filename = "data_test.db"
     # Create the file if it doesn't exist
-    if not os.path.exists(filename):
-        open(filename, 'w').close()
+    #if not os.path.exists(filename):
+    #    open(filename, 'w').close()
 
     #db     = open(filename, "r+b")
     format = "I:age, 20s:name"
     age    = 10
     name   = "Steve"
-    data   = Data(format)
-    print data
-    data["age"]  = age
-    data["name"] = name
-    print data
+    from time import time
+    t = time()
+    for i in range(1000000):
+      data = Data(format)
+    print time()-t
+    #data["age"]  = age
+    #data["name"] = name
+
+if __name__ == "__main__":
+    main()
+

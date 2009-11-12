@@ -8,7 +8,8 @@
 
 import os
 from time import time
-from Persistent import Array
+from random import randint, seed
+from Persistent.Hashset.fixed_set import FixedSet
 from Persistent.Data.test import Data
 from Persistent.Data.property import IntegerProperty
 
@@ -17,29 +18,34 @@ class User(Data):
     age    = IntegerProperty()
     zindex = IntegerProperty()
 
-db    = "array_test.db"
+seed(4)
+db    = "fixed_set_test.db"
 size  = 10
-users = Array(User, db)
+rands = list(set([randint(0, 50000000) for i in xrange(10)]))
+users = FixedSet(User, db, allocation=size*10)
 
 t = time()
-for i in range(size):
-    user = users[i]
-    user.age    = i
-    user.commit()
+for i in rands:
+    user     = users.newUser()
+    user.age = i
+    print user
+    users.set(user)
 print time() - t
 
 t = time()
-for i in range(size):
-    user = users[i]
-    print user
+for i in rands:
+    user     = users.newUser()
+    user.age = i
+    print users.get(user)
 print time() - t
 users.close()
 
-users = Array(User, db)
+users = FixedSet(User, db)
 t = time()
-for i in range(size):
-    user = users[i]
-    print user
+for i in rands:
+    user     = users.newUser()
+    user.age = i
+    print users.get(user)
 print time() - t
 users.close()
 

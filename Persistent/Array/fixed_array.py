@@ -6,18 +6,26 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-from Persistent import Data
-from struct     import pack, unpack, calcsize
-from time       import time
+import os
+import pdb
+from struct import pack, unpack, calcsize
 
 class FixedArray:
 
-    def __init__(self, format, file_object, allocation=1024, address=None):
+    def __init__(self, data, file_name, file_object=None, allocation=1024, address=None):
+        if file_name != None:
+            if not os.path.exists(file_name):
+                # Create the file if it doesn't exist
+                open(file_name, 'w').close()
+            elif address == None:
+                # If the file exists already and no address is supplied 
+                address = 0
+            file_object = open(file_name, 'r+b')
+
+        data() # Initialize, just in case
         self.file_object     = file_object
-        self.format          = format
-        self.cleaned_format  = "".join(i.split(":")[0].strip() for i in format.split(","))
-        self.format_size     = calcsize(self.cleaned_format)
-        self.size            = allocation*self.format_size
+        self.data            = data
+        self.size            = allocation*data._size
         self.address         = address
         # TODO Write all construction information to disk
 
@@ -56,47 +64,33 @@ class FixedArray:
         self.file_object.write(zeroed_block)
 
     def __setitem__(self, index, data):
-        self[index].set(data.values)
+        self.__commit__(data, index)
 
     def __getitem__(self, index):
-        return Data(self.format, self.file_object, self.__get_address__(index))
+        address = self.__get_address__(index)
+        self.file_object.seek(address)
+        bytes = self.file_object.read(self.data._size)
+        d = self.data(self, bytes)
+        d._fixed_array_index = index
+        return d
+
+    def __commit__(self, data, index=None):
+        if index == None:
+          if hasattr(data, '_fixed_array_index'):
+            index = data._fixed_array_index
+          else:
+            raise Exception("Data has no associated index")
+        address = self.__get_address__(index)
+        self.file_object.seek(address)
+        self.file_object.write(data.unload())
 
     def __get_address__(self, index):
-        return self.address + calcsize("q") + (index * self.format_size)
+        return self.address + calcsize("q") + (index * self.data._size)
 
-if __name__ == "__main__":
-    main()
+    def __getattr__(self, name):
+        # TODO This doesn't set self in the data 
+        if name.startswith("new") and name.endswith(self.data.__name__):
+            return self.data
 
-def main():
-    import os
-
-    filename = "array_test.db"
-    # Create the file if it doesn't exist
-    if not os.path.exists(filename):
-        open(filename, 'w').close()
-
-    db     = open(filename, "r+b")
-    format = "I:age, 20s:name"
-    size   = 100000
-    array  = FixedArray(format, db, allocation = size)
-    t = time()
-    for i in range(size):
-        array[i]["age"] = i
-        array[i]["name"] = "Steve"
-    print time() - t
-    t = time()
-    for i in range(size):
-        if array[i]["age"] != i:
-            print "UH!"
-    print time() - t
-    # TODO hold onto elements for scenarios like this
-    db.close()
-    db = open(filename, "r+b")
-    array  = FixedArray(format, db, address = array.address)
-    t = time()
-    for i in range(size):
-        if array[i]["age"] != i:
-            print "UH!"
-    print time() - t
-    db.close()
-    os.remove(filename)
+    def close(self):
+        self.file_object.close()

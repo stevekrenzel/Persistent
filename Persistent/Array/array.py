@@ -6,19 +6,31 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-from math                         import log
+import os
+import pdb
+from math import log
 from Persistent.Array.fixed_array import FixedArray
-from Persistent                   import DynamicCollection
+from Persistent import DynamicCollection
 
 class Array(DynamicCollection):
 
-    def __init__(self, format, file_object, initial_allocation=1024, address=None):
-        self.format          = format
-        self.base_allocation = initial_allocation
-        DynamicCollection.__init__(self, file_object, initial_allocation, address)
+    def __init__(self, data, file_name, file_object=None, allocation=1024, address=None):
+        if file_name != None:
+            if not os.path.exists(file_name):
+                # Create the file if it doesn't exist
+                open(file_name, 'w').close()
+            elif address == None:
+                # If the file exists already and no address is supplied 
+                address = 0
+            file_object = open(file_name, 'r+b')
+
+        data() # Initialize, just in case
+        self.data = data
+        self.base_allocation = allocation
+        DynamicCollection.__init__(self, file_object, allocation, address)
 
     def __create_collection__(self, address=None):
-        return FixedArray(self.format, self.file_object, self.initial_allocation, address)
+        return FixedArray(self.data, None, self.file_object, self.initial_allocation, address)
 
     def __get_array_index__(self, index):
         return int(log((index + self.base_allocation)/self.base_allocation, 2))
@@ -34,6 +46,7 @@ class Array(DynamicCollection):
             self.collections[array_index][relative_index] = data
         else:
             self.add_collection()
+            # Recurse and try setting again
             self[index] = data
 
     def __getitem__(self, index):
@@ -45,44 +58,5 @@ class Array(DynamicCollection):
             self.add_collection()
             return self[index]
 
-def main():
-    import os
-    from random import randint
-    from time import time
-
-    filename = "vector_test.db"
-    # Create the file if it doesn't exist
-    if not os.path.exists(filename):
-        open(filename, 'w').close()
-
-    db     = open(filename, "r+b")
-    format = "I:age"
-    size   = 100
-    num    = 20000
-    vector = Array(format, db)
-    nums   = [randint(0, 100) for i in xrange(num)]
-
-    t = time()
-    for i, e in enumerate(nums):
-        vector[i]["age"] = e
-    print time() - t
-
-    t = time()
-    for i, e in enumerate(nums):
-        if vector[i]["age"] != e:
-            print "Shit"
-    print time() - t
-
-    db.close()
-    db     = open(filename, "r+b")
-    vector = Array(format, db, address=0)
-    t = time()
-    for i, e in enumerate(nums):
-        if vector[i]["age"] != e:
-            print "Shit"
-    print time() - t
-    db.close()
-    os.remove(filename)
-
-if __name__ == "__main__":
-    main()
+    def close(self):
+        self.file_object.close()
