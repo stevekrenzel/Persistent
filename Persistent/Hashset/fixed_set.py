@@ -23,29 +23,29 @@ class FixedSet(FixedArray):
 
     def set(self, data):
         bytes        = data.unload_key() if data._keys else data.unload()
-        address, raw = self.__find_bytes__(bytes)
-        index        = self.__find_by_bytes__(bytes, raw)
+        address, raw = self._find_bytes(bytes)
+        index        = self._find_by_bytes(bytes, raw)
         if index != None:
             # We only write data if this has keys because otherwise
             # we've already confirmed that these bits exist on disk
             if data._keys:
-                self.__commit__(data, address=address + index)
+                self._commit(data, address=address + index)
             return True
-        index = self.__find_by_bytes__(self.empty_cell, raw)
+        index = self._find_by_bytes(self.empty_cell, raw)
         if index != None:
-            self.__commit__(data, address=address + index)
+            self._commit(data, address=address + index)
             return True
         return False
 
     def get(self, data):
         bytes = data.unload_key() if data._keys else data.unload()
-        address, raw = self.__find_bytes__(bytes)
-        index = self.__find_by_bytes__(bytes, raw)
+        address, raw = self._find_bytes(bytes)
+        index = self._find_by_bytes(bytes, raw)
         if index != None:
             return self.data(self, raw[index : index + self.data._size])
         return None
 
-    def __commit__(self, data, bytes=None, address=None):
+    def _commit(self, data, bytes=None, address=None):
         if address == None:
             return self.set(data)
         if bytes == None:
@@ -53,12 +53,12 @@ class FixedSet(FixedArray):
         self.file_object.seek(address)
         self.file_object.write(bytes)
 
-    def __find_bytes__(self, bytes):
-        address = self.__get_address__(bytes)
+    def _find_bytes(self, bytes):
+        address = self._get_address(bytes)
         self.file_object.seek(address)
         return (address, self.file_object.read(self.data._size * self.probe_size))
 
-    def __find_by_bytes__(self, data_bytes, lookup_bytes):
+    def _find_by_bytes(self, data_bytes, lookup_bytes):
         if data_bytes not in lookup_bytes:
             return None
         index = lookup_bytes.find(data_bytes)
@@ -68,7 +68,7 @@ class FixedSet(FixedArray):
             index = lookup_bytes.find(data_bytes, index + 1)
         return None
 
-    def __get_address__(self, bytes):
+    def _get_address(self, bytes):
         slot    = int(md5(bytes).hexdigest(), 16) % self.range
         offset  = slot * self.data._size
         return self.address + self.long_sz + offset

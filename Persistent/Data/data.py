@@ -7,88 +7,68 @@
 ###############################################################################
 
 from struct import pack, unpack, calcsize
+from Persistent.Data.property import Property
+from itertools import izip
 
 class Data:
+    #TODO add byte to determine what vals are set and which aren't
+    #TODO add crc32
+    def __init__(self, _parent=None, _bytes=None, _file=None,  **kwargs):
+        if "_names" not in self.__class__.__dict__:
+            names      = []
+            properties = []
+            keys       = []
+            key_names  = []
+            key_fmt    = ""
+            size       = 0
+            format     = ""
+            for name, property in sorted(self.__class__.__dict__.items()):
+                if isinstance(property, Property):
+                    if property.key == True:
+                        keys.append((name, property))
+                        key_fmt += property.format
+                    else:
+                        names.append(name)
+                        properties.append(property)
+            if len(keys) != 0:
+                # We require the key bits to be at the start of the data
+                key_names  = [k[0] for k in keys]
+                key_props  = [k[1] for k in keys]
+                names      = key_names + names
+                properties = key_props + properties
+            self.__class__._names      = names
+            self.__class__._properties = properties
+            self.__class__._keys       = set(key_names) if len(keys) != 0 else None
+            self.__class__._key_fmt    = key_fmt
+            self.__class__._size       = sum(p.size for p in properties)
+            self.__class__._format     = "".join(p.format for p in properties)
+        self._file = _file
+        self._parent = _parent
+        if _bytes == None:
+            for name, property in izip(self._names, self.__class__._properties):
+                setattr(self, name, kwargs.get(name, property.get_default(self._file)))
+        else:
+            self.load(_bytes)
 
-    def __init__(self, format, file_object=None, address=None, bytes=None):
-        self.file_object        = file_object
-        format                  = format.split(",")
-        self.format, self.names = zip(*[i.split(":") for i in format])
-        self.format             = "".join(self.format)
-        self.size               = calcsize(self.format)
-        self.address            = address
-        self.empty_cell         = chr(255) * self.size
-        self.bytes              = bytes or self.empty_cell
-        self.values             = {}
+    def load(self, bytes):
+        values = unpack(self._format, bytes)
+        for name, value, property in izip(self._names, values, self._properties):
+            setattr(self, name, property.unpack(value, self._file))
 
-        if self.file_object != None:
-            # We allocate space at the end of the file if there is no address
-            # If you provide a file object, you've got to provide an address
-            # or we make space for you.
-            if self.address == None:
-                # Seek to the end of the file and write the data
-                self.file_object.seek(0, 2)
-                self.address = self.file_object.tell()
-                self.file_object.write(self.bytes)
-            elif self.bytes == self.empty_cell:
-                # If we haven't been given the bytes for this data,
-                # read it in
-                self.file_object.seek(self.address)
-                self.bytes = self.file_object.read(self.size)
+    def unload(self):
+        properties = [property.pack(getattr(self, name)) \
+                      for name, property in izip(self._names, self._properties)]
+        return pack(self._format, *properties)
 
-        values = unpack(self.format, self.bytes)
-        for name, value in zip(self.names, values):
-            self.values[name] = value
+    def unload_key(self):
+        properties = [property.pack(getattr(self, name)) \
+                      for name, property in izip(self._names, self._properties)
+                      if name in self._keys]
+        return pack(self._key_fmt, *properties)
 
-    def __getitem__(self, name):
-        return self.values[name]
-
-    def __setitem__(self, name, value):
-        self.values[name] = value
-        self.set(self.values)
-
-    def set(self, values):
-        # Store the value in memory for quick access later
-        self.values = values
-        self.bytes  = pack(self.format, *[values[name] for name in self.names])
-
-        if self.file_object != None:
-            # Seek to our spot on disk and write the new value
-            self.file_object.seek(self.address)
-            self.file_object.write(self.bytes)
-
-    def __eq__(self, other):
-        return self.values == other.values if other != None else None
+    def commit(self):
+        self._parent.commit(self)
 
     def __str__(self):
-        return str(self.values)
-
-    def __cmp__(self, other):
-        return cmp(self.values, other.values if other != None else None)
-
-    def get(self):
-        return self.values
-
-def main():
-    import os
-
-    #filename = "data_test.db"
-    # Create the file if it doesn't exist
-    #if not os.path.exists(filename):
-    #    open(filename, 'w').close()
-
-    #db     = open(filename, "r+b")
-    format = "I:age, 20s:name"
-    age    = 10
-    name   = "Steve"
-    from time import time
-    t = time()
-    for i in range(1000000):
-      data = Data(format)
-    print time()-t
-    #data["age"]  = age
-    #data["name"] = name
-
-if __name__ == "__main__":
-    main()
-
+        ret = ", ".join("%s: %s"%(name, getattr(self, name)) for name in self._names)
+        return "{" + ret + "}"

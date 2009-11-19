@@ -6,4 +6,6 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-from Persistent.DynamicCollection.dynamic_collection import DynamicCollection
+from Persistent.Property.property import Property
+from Persistent.Property.integer  import IntegerProperty
+from Persistent.Property.string   import StringProperty

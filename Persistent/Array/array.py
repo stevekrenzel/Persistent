@@ -20,33 +20,33 @@ class Array(DynamicCollection):
         self.base_allocation = allocation
         DynamicCollection.__init__(self, file_name, file_object, allocation, address)
 
-    def __create_collection__(self, address=None):
+    def _create_collection(self, address=None):
         return FixedArray(self.data, None, self.file_object, self.initial_allocation, address)
 
-    def __get_array_index__(self, index):
+    def _get_array_index(self, index):
         return int(log((index + self.base_allocation)/self.base_allocation, 2))
 
-    def __get_relative_index(self, index, array_index):
+    def _get_relative_index(self, index, array_index):
         a, i, n = array_index, index, self.base_allocation
         return i - n*((2**a)-1) if a > 0 else i
 
     def __setitem__(self, index, data):
-        array_index    = self.__get_array_index__(index)
-        relative_index = self.__get_relative_index(index, array_index)
+        array_index    = self._get_array_index__(index)
+        relative_index = self._get_relative_index(index, array_index)
         if array_index < len(self.collections):
             self.collections[array_index][relative_index] = data
         else:
-            self.add_collection()
+            self._add_collection()
             # Recurse and try setting again
             self[index] = data
 
     def __getitem__(self, index):
-        array_index    = self.__get_array_index__(index)
-        relative_index = self.__get_relative_index(index, array_index)
+        array_index    = self._get_array_index__(index)
+        relative_index = self._get_relative_index(index, array_index)
         if array_index < len(self.collections):
             return self.collections[array_index][relative_index]
         else:
-            self.add_collection()
+            self._add_collection()
             return self[index]
 
     def close(self):

@@ -37,7 +37,7 @@ class DynamicCollection:
             self.file_object.write(pack(self.pointers_format, *self.pointers))
 
             # Allocate the first array
-            self.add_collection()
+            self._add_collection()
         else:
             # Seek to the pointers
             self.file_object.seek(self.address)
@@ -48,7 +48,7 @@ class DynamicCollection:
             # Load collections
             self.collections = [self.__create_collection__(address=i) for i in self.pointers if i > -1]
 
-    def add_collection(self):
+    def _add_collection(self):
         # Find the position of the next null pointer
         position = self.pointers.index(-1)
 
@@ -70,7 +70,7 @@ class DynamicCollection:
         # Each new allocation doubles the size of the previous one
         self.initial_allocation = 2 * self.initial_allocation
 
-    def __create_collection__(self, address=None):
+    def _create_collection(self, address=None):
         pass
 
     def close(self):

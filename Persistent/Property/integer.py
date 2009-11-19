@@ -6,4 +6,9 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-from Persistent.DynamicCollection.dynamic_collection import DynamicCollection
+from Persistent.Property import Property
+
+class IntegerProperty(Property):
+    def __init__(self, default=0, key=False):
+        Property.__init__(self, "I", default, key)
+

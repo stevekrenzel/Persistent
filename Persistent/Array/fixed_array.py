@@ -7,7 +7,6 @@
 ###############################################################################
 
 import os
-import pdb
 from struct import pack, unpack, calcsize
 
 class FixedArray:
@@ -39,7 +38,7 @@ class FixedArray:
             self.file_object.write(pack("q", self.size))
 
             # Allocate the space for the elements
-            self.__allocate_space__(self.size)
+            self._allocate_space(self.size)
         else:
             # Seek to the start of the array
             self.file_object.seek(self.address)
@@ -47,7 +46,7 @@ class FixedArray:
             # Set the size of the array
             self.size = unpack("q", self.file_object.read(calcsize("q")))[0]
 
-    def __allocate_space__(self, size):
+    def _allocate_space(self, size):
         # We write half a megabyte at a time
         block_size = 512 * 1024
 
@@ -64,27 +63,27 @@ class FixedArray:
         self.file_object.write(zeroed_block)
 
     def __setitem__(self, index, data):
-        self.__commit__(data, index)
+        self.commit(data, index)
 
     def __getitem__(self, index):
-        address = self.__get_address__(index)
+        address = self._get_address(index)
         self.file_object.seek(address)
         bytes = self.file_object.read(self.data._size)
         d = self.data(self, bytes)
         d._fixed_array_index = index
         return d
 
-    def __commit__(self, data, index=None):
+    def commit(self, data, index=None):
         if index == None:
           if hasattr(data, '_fixed_array_index'):
             index = data._fixed_array_index
           else:
             raise Exception("Data has no associated index")
-        address = self.__get_address__(index)
+        address = self._get_address(index)
         self.file_object.seek(address)
         self.file_object.write(data.unload())
 
-    def __get_address__(self, index):
+    def _get_address(self, index):
         return self.address + calcsize("q") + (index * self.data._size)
 
     def close(self):
