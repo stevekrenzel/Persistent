@@ -8,39 +8,35 @@
 
 import os
 from time import time
-from Persistent import Array
+from random import randint, seed, shuffle
+from Persistent import Hashmap
 from Persistent.Data.test import Data
 from Persistent.Data.property import IntegerProperty
 
 class User(Data):
-    id     = IntegerProperty()
+    id     = IntegerProperty(key=True)
     age    = IntegerProperty()
-    zindex = IntegerProperty()
 
-db    = "array_test.db"
-size  = 10
-users = Array(User, db)
+seed(4)
+db    = "map_test.db"
+size  = 174000
+users = Hashmap(User, db)
+seed(4)
+rands = range(size)
+shuffle(range(size))
 
 t = time()
-for i in range(size):
-    user = users[i]
-    user.age    = i
-    user.commit()
+for i in rands:
+    users[i] = i
 print time() - t
 
 t = time()
-for i in range(size):
+for i in rands:
     user = users[i]
-    print user
-print time() - t
-users.close()
-
-users = Array(User, db)
-t = time()
-for i in range(size):
-    user = users[i]
-    print user
+    if user.age != i:
+        print user
 print time() - t
 users.close()
 
 os.remove(db)
+# TODO Make newUser work as expected, is it even necessary? At least make data.commit work

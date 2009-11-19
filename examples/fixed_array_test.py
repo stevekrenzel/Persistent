@@ -20,8 +20,8 @@ class User(Data):
 
 seed(4)
 db    = "fixed_array_test.db"
-size  = 10
-rands = list(set([randint(0, 50000000) for i in xrange(10)]))
+size  = 10000000
+rands = list(set([randint(0, 50000000) for i in xrange(size)]))
 users = FixedArray(User, db, allocation=size)
 
 t = time()
@@ -29,13 +29,13 @@ for i, r in enumerate(rands):
     user = users.newUser()
     user.age = r
     users[i] = user
-    print user
+    #print user
 print time() - t
 
 t = time()
 for i in range(size):
     user = users[i]
-    print user
+    #print user
 print time() - t
 users.close()
 
@@ -43,7 +43,7 @@ users = FixedArray(User, db)
 t = time()
 for i in range(size):
     user = users[i]
-    print user
+    #print user
 print time() - t
 users.close()
 

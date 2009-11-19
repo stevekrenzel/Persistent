@@ -6,11 +6,20 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
+import os
 from struct import pack, unpack, calcsize
 
 class DynamicCollection:
 
-    def __init__(self, file_object, initial_allocation=1024, address=None):
+    def __init__(self, file_name, file_object, initial_allocation=1024, address=None):
+        if file_name != None:
+            if not os.path.exists(file_name):
+                # Create the file if it doesn't exist
+                open(file_name, 'w').close()
+            elif address == None:
+                # If the file exists already and no address is supplied 
+                address = 0
+            file_object = open(file_name, 'r+b')
         self.file_object        = file_object
         self.initial_allocation = initial_allocation
         self.pointers_format    = "q" * 32
@@ -63,3 +72,6 @@ class DynamicCollection:
 
     def __create_collection__(self, address=None):
         pass
+
+    def close(self):
+        self.file_object.close()

@@ -6,15 +6,26 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-from Persistent                   import Hashset
-from Persistent.Hashmap.fixed_map import FixedMap
+from Persistent.Data.test import Data
+from Persistent import Hashset
 
 class Hashmap(Hashset):
+    """We just give it a different name for cleaner code right now."""
 
-    def __init__(self, key_format, val_format, file_object, initial_allocation=1024, address=None):
-        self.key_format = key_format
-        self.val_format = val_format
-        Hashset.__init__(self, None, file_object, initial_allocation, address)
+    def set(self, data):
+        self.add(data)
 
-    def __create_collection__(self, address=None):
-        return FixedMap(self.key_format, self.val_format, self.file_object, self.initial_allocation, address=address)
+    def __setitem__(self, key, value):
+        if len(self.data._keys) != 1 or len(self.data._names) != 2:
+            raise Exception()
+        key_name = self.data._names[0]
+        val_name = self.data._names[1]
+        kwargs = {key_name : key, val_name : value}
+        self.set(self.data(**kwargs))
+
+    def __getitem__(self, key):
+        if len(self.data._keys) != 1:
+            raise Exception()
+        key_name = self.data._names[0]
+        kwargs = {key_name : key}
+        return self.get(self.data(**kwargs))

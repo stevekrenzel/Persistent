@@ -11,21 +11,21 @@ from Persistent.Hashset.fixed_set import FixedSet
 
 class Hashset(DynamicCollection):
 
-    def __init__(self, format, file_object, initial_allocation=1024, address=None):
-        self.format = format
-        DynamicCollection.__init__(self, file_object, initial_allocation, address)
+    def __init__(self, data, file_name, file_object=None, allocation=1, address=None):
+        self.data = data
+        DynamicCollection.__init__(self, file_name, file_object, allocation, address)
 
     def __create_collection__(self, address=None):
-        return FixedSet(self.format, self.file_object, self.initial_allocation, address=address)
+        return FixedSet(self.data, None, self.file_object, self.initial_allocation, address=address)
 
-    def set(self, *data):
-        if self.collections[-1].set(*data) == True:
+    def add(self, data):
+        if self.collections[-1].set(data) == True:
             return
         self.add_collection()
-        self.set(*data)
+        self.add(data)
 
     def get(self, data, default=None):
-        for a in reversed(self.collections):
+        for i, a in enumerate(reversed(self.collections)):
             b = a.get(data)
             if b != None:
                 return b

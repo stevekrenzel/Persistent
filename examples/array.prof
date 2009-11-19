@@ -1,0 +1,133 @@
+6.65708208084
+5.57774591446
+         6500398 function calls (6500392 primitive calls) in 12.413 CPU seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.000    0.000 <string>:1(<module>)
+        1    0.000    0.000    0.000    0.000 __init__.py:1(<module>)
+        1    0.000    0.000    0.000    0.000 __init__.py:8(<module>)
+        4    0.002    0.000    0.022    0.005 __init__.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 array.py:15(Array)
+        1    0.000    0.000    0.002    0.002 array.py:17(__init__)
+        7    0.000    0.000    0.013    0.002 array.py:23(__create_collection__)
+   260006    0.474    0.000    0.809    0.000 array.py:26(__get_array_index__)
+   260006    0.261    0.000    0.261    0.000 array.py:29(__get_relative_index)
+130006/130000    0.489    0.000    4.695    0.000 array.py:33(__setitem__)
+   130000    0.491    0.000    5.253    0.000 array.py:43(__getitem__)
+        1    0.000    0.000    0.000    0.000 array.py:52(close)
+        1    0.002    0.002    0.007    0.007 array.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 array_test.py:16(User)
+        1    0.880    0.880   12.413   12.413 array_test.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 bdb.py:1(<module>)
+        1    0.000    0.000    0.000    0.000 bdb.py:13(Bdb)
+        1    0.000    0.000    0.000    0.000 bdb.py:417(Breakpoint)
+        1    0.000    0.000    0.000    0.000 bdb.py:582(Tdb)
+        1    0.000    0.000    0.000    0.000 bdb.py:9(BdbQuit)
+        1    0.000    0.000    0.000    0.000 cmd.py:46(<module>)
+        1    0.000    0.000    0.000    0.000 cmd.py:55(Cmd)
+        1    0.000    0.000    0.000    0.000 data.py:11(Data)
+        1    0.000    0.000    0.000    0.000 data.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 dynamic_collection.py:12(DynamicCollection)
+        1    0.000    0.000    0.002    0.002 dynamic_collection.py:14(__init__)
+        7    0.000    0.000    0.013    0.002 dynamic_collection.py:51(add_collection)
+        1    0.000    0.000    0.000    0.000 dynamic_collection.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 fixed_array.py:13(FixedArray)
+        7    0.000    0.000    0.013    0.002 fixed_array.py:15(__init__)
+        7    0.006    0.001    0.012    0.002 fixed_array.py:50(__allocate_space__)
+   130000    0.147    0.000    3.630    0.000 fixed_array.py:66(__setitem__)
+   130000    0.761    0.000    4.184    0.000 fixed_array.py:69(__getitem__)
+   130000    0.576    0.000    3.483    0.000 fixed_array.py:77(__commit__)
+   260000    0.465    0.000    0.640    0.000 fixed_array.py:87(__get_address__)
+        1    0.000    0.000    0.000    0.000 fixed_array.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 fixed_set.py:13(FixedSet)
+        1    0.000    0.000    0.003    0.003 fixed_set.py:9(<module>)
+        1    0.001    0.001    0.002    0.002 hashlib.py:23(<module>)
+        4    0.001    0.000    0.001    0.000 hashlib.py:26(__get_builtin_constructor)
+       10    0.000    0.000    0.000    0.000 hashlib.py:77(<lambda>)
+        1    0.000    0.000    0.000    0.000 hashmap.py:11(Hashmap)
+        1    0.000    0.000    0.000    0.000 hashmap.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 hashset.py:12(Hashset)
+        1    0.000    0.000    0.003    0.003 hashset.py:9(<module>)
+        1    0.000    0.000    0.000    0.000 os.py:718(urandom)
+        1    0.002    0.002    0.004    0.004 pdb.py:3(<module>)
+        1    0.000    0.000    0.000    0.000 pdb.py:53(Pdb)
+        1    0.000    0.000    0.000    0.000 posixpath.py:168(exists)
+        1    0.001    0.001    0.001    0.001 pprint.py:35(<module>)
+        1    0.000    0.000    0.000    0.000 pprint.py:73(PrettyPrinter)
+        1    0.000    0.000    0.000    0.000 property.py:1(<module>)
+   390024    0.111    0.000    0.111    0.000 property.py:10(get_default)
+   390000    0.083    0.000    0.083    0.000 property.py:13(unpack)
+   390000    0.078    0.000    0.078    0.000 property.py:16(pack)
+        1    0.000    0.000    0.000    0.000 property.py:19(IntegerProperty)
+        3    0.000    0.000    0.000    0.000 property.py:20(__init__)
+        1    0.000    0.000    0.000    0.000 property.py:3(Property)
+        3    0.000    0.000    0.000    0.000 property.py:4(__init__)
+        1    0.129    0.129    0.147    0.147 random.py:250(shuffle)
+        1    0.001    0.001    0.002    0.002 random.py:39(<module>)
+        1    0.000    0.000    0.000    0.000 random.py:609(WichmannHill)
+        1    0.000    0.000    0.000    0.000 random.py:69(Random)
+        1    0.000    0.000    0.000    0.000 random.py:759(SystemRandom)
+        1    0.000    0.000    0.000    0.000 random.py:88(__init__)
+        2    0.000    0.000    0.000    0.000 random.py:97(seed)
+        1    0.001    0.001    0.001    0.001 repr.py:1(<module>)
+        2    0.000    0.000    0.000    0.000 repr.py:10(__init__)
+        1    0.000    0.000    0.000    0.000 repr.py:8(Repr)
+        4    0.000    0.000    0.000    0.000 struct.py:35(_compile)
+   260003    0.176    0.000    0.176    0.000 struct.py:43(calcsize)
+   130015    0.185    0.000    0.185    0.000 struct.py:54(pack)
+   130000    0.148    0.000    0.207    0.000 struct.py:77(unpack)
+        1    0.000    0.000    0.000    0.000 test.py:1(<module>)
+        4    0.000    0.000    0.000    0.000 test.py:36(<genexpr>)
+        4    0.000    0.000    0.000    0.000 test.py:37(<genexpr>)
+   130000    0.928    0.000    1.352    0.000 test.py:46(load)
+   130000    1.002    0.000    1.386    0.000 test.py:52(unload)
+        1    0.000    0.000    0.000    0.000 test.py:6(Data)
+   260008    1.408    0.000    3.073    0.000 test.py:9(__init__)
+        1    0.000    0.000    0.000    0.000 traceback.py:1(<module>)
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_md5}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_sha1}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_sha224}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_sha256}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_sha384}
+        1    0.000    0.000    0.000    0.000 {_hashlib.openssl_sha512}
+        1    0.000    0.000    0.000    0.000 {binascii.hexlify}
+       14    0.000    0.000    0.000    0.000 {chr}
+        1    0.000    0.000    0.000    0.000 {dir}
+        1    0.000    0.000   12.413   12.413 {execfile}
+        1    0.000    0.000    0.000    0.000 {filter}
+        2    0.000    0.000    0.000    0.000 {function seed at 0x962c70}
+   390006    0.120    0.000    0.120    0.000 {getattr}
+        5    0.000    0.000    0.000    0.000 {isinstance}
+   260022    0.070    0.000    0.070    0.000 {len}
+        1    0.000    0.000    0.000    0.000 {math.exp}
+   260008    0.335    0.000    0.335    0.000 {math.log}
+        1    0.000    0.000    0.000    0.000 {math.sqrt}
+       13    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        2    0.000    0.000    0.000    0.000 {method 'close' of 'file' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+   390024    0.089    0.000    0.089    0.000 {method 'get' of 'dict' objects}
+        7    0.000    0.000    0.000    0.000 {method 'index' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+   129999    0.018    0.000    0.018    0.000 {method 'random' of '_random.Random' objects}
+   130000    0.953    0.000    0.953    0.000 {method 'read' of 'file' objects}
+   260015    1.600    0.000    1.600    0.000 {method 'seek' of 'file' objects}
+       10    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        8    0.000    0.000    0.000    0.000 {method 'tell' of 'file' objects}
+   130000    0.059    0.000    0.059    0.000 {method 'unpack' of 'Struct' objects}
+   130023    0.099    0.000    0.099    0.000 {method 'write' of 'file' objects}
+        2    0.001    0.001    0.001    0.001 {open}
+        1    0.000    0.000    0.000    0.000 {posix.close}
+        1    0.000    0.000    0.000    0.000 {posix.open}
+        1    0.000    0.000    0.000    0.000 {posix.read}
+        1    0.001    0.001    0.001    0.001 {posix.remove}
+        1    0.000    0.000    0.000    0.000 {posix.stat}
+        2    0.008    0.004    0.008    0.004 {range}
+   780024    0.246    0.000    0.246    0.000 {setattr}
+        1    0.000    0.000    0.000    0.000 {sorted}
+        1    0.000    0.000    0.000    0.000 {sum}
+        4    0.000    0.000    0.000    0.000 {time.time}
+
+

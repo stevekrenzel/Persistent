@@ -15,19 +15,10 @@ from Persistent import DynamicCollection
 class Array(DynamicCollection):
 
     def __init__(self, data, file_name, file_object=None, allocation=1024, address=None):
-        if file_name != None:
-            if not os.path.exists(file_name):
-                # Create the file if it doesn't exist
-                open(file_name, 'w').close()
-            elif address == None:
-                # If the file exists already and no address is supplied 
-                address = 0
-            file_object = open(file_name, 'r+b')
-
         data() # Initialize, just in case
         self.data = data
         self.base_allocation = allocation
-        DynamicCollection.__init__(self, file_object, allocation, address)
+        DynamicCollection.__init__(self, file_name, file_object, allocation, address)
 
     def __create_collection__(self, address=None):
         return FixedArray(self.data, None, self.file_object, self.initial_allocation, address)

@@ -87,10 +87,5 @@ class FixedArray:
     def __get_address__(self, index):
         return self.address + calcsize("q") + (index * self.data._size)
 
-    def __getattr__(self, name):
-        # TODO This doesn't set self in the data 
-        if name.startswith("new") and name.endswith(self.data.__name__):
-            return self.data
-
     def close(self):
         self.file_object.close()

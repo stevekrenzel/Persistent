@@ -6,14 +6,13 @@
 # all present and future rights to this code under copyright law.
 ###############################################################################
 
-import pdb
 from struct import pack, unpack, calcsize
 from hashlib import md5
 from Persistent.Array.fixed_array import FixedArray
 
 class FixedSet(FixedArray):
 
-    def __init__(self, data, file_name, file_object=None, allocation=1024, probe_size=120, address=None):
+    def __init__(self, data, file_name, file_object=None, allocation=1024, probe_size=75, address=None):
         FixedArray.__init__(self, data, file_name, file_object, allocation, address)
         allocation      = self.size/self.data._size
         self.probe_size = min(allocation, probe_size)
@@ -23,18 +22,23 @@ class FixedSet(FixedArray):
         # TODO Write all construction information to disk
 
     def set(self, data):
-        bytes = data.unload()
+        bytes        = data.unload_key() if data._keys else data.unload()
         address, raw = self.__find_bytes__(bytes)
-        # TODO If we find 'bytes', do we really need to write anything?
-        for d in (bytes, self.empty_cell):
-            index = self.__find_by_bytes__(d, raw)
-            if index != None:
-                self.__commit__(data, bytes, address + index)
-                return True
+        index        = self.__find_by_bytes__(bytes, raw)
+        if index != None:
+            # We only write data if this has keys because otherwise
+            # we've already confirmed that these bits exist on disk
+            if data._keys:
+                self.__commit__(data, address=address + index)
+            return True
+        index = self.__find_by_bytes__(self.empty_cell, raw)
+        if index != None:
+            self.__commit__(data, address=address + index)
+            return True
         return False
 
     def get(self, data):
-        bytes = data.unload()
+        bytes = data.unload_key() if data._keys else data.unload()
         address, raw = self.__find_bytes__(bytes)
         index = self.__find_by_bytes__(bytes, raw)
         if index != None:
