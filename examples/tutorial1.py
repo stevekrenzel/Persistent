@@ -1,18 +1,15 @@
-from Persistent import Hashmap
-from Persistent.Data.test import Data
-from Persistent.Data.property import IntegerProperty
+from Persistent import Hashmap, Data, IntegerProperty, StringProperty
 
 class PhoneEntry(Data):
-    name  = IntegerProperty(key=True)
+    name  = StringProperty(10, key=True)
     phone = IntegerProperty()
 
 phonebook = Hashmap(PhoneEntry, 'phonebook.db')
 
-phonebook.set(PhoneEntry(name=123, phone=456))
-phonebook.set(PhoneEntry(name=789, phone=101))
+phonebook.set(PhoneEntry(name="Steve", phone=6541234))
+phonebook.set(PhoneEntry(name="Bob", phone=100100100))
 
-print phonebook.get(PhoneEntry(name=123))
-print phonebook.get(PhoneEntry(name=789))
+print phonebook.get(PhoneEntry(name="Steve"))
+print phonebook.get(PhoneEntry(name="Bob"))
 
 phonebook.close()
-

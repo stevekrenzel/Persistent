@@ -1,22 +1,16 @@
-###############################################################################
-# The author or authors of this code dedicate any and all copyright interest in
-# this code to the public domain. We make this dedication for the benefit of
-# the public at large and to the detriment of our heirs and successors. We
-# intend this dedication to be an overt act of relinquishment in perpetuity of
-# all present and future rights to this code under copyright law.
-###############################################################################
-
-from struct import pack, unpack, calcsize
+from struct import calcsize
 from hashlib import md5
 from Persistent.Array.fixed_array import FixedArray
 
 class FixedSet(FixedArray):
 
-    def __init__(self, data, file_name, file_object=None, allocation=1024, probe_size=75, address=None):
-        FixedArray.__init__(self, data, file_name, file_object, allocation, address)
-        allocation      = self.size/self.data._size
+    def __init__(self, data, file_name, file_object=None, allocation=1024,
+            probe_size=75, address=None):
+        FixedArray.__init__(self, data, file_name, file_object, allocation,
+            address)
+        allocation      = self.size/self.data.size_
         self.probe_size = min(allocation, probe_size)
-        self.empty_cell = chr(255) * self.data._size
+        self.empty_cell = chr(255) * self.data.size_
         self.range      = allocation - self.probe_size + 1
         self.long_sz    = calcsize("q")
         # TODO Write all construction information to disk
@@ -42,7 +36,7 @@ class FixedSet(FixedArray):
         address, raw = self._find_bytes(bytes)
         index = self._find_by_bytes(bytes, raw)
         if index != None:
-            return self.data(self, raw[index : index + self.data._size])
+            return self.data(self, raw[index : index + self.data.size_])
         return None
 
     def _commit(self, data, bytes=None, address=None):
@@ -56,21 +50,22 @@ class FixedSet(FixedArray):
     def _find_bytes(self, bytes):
         address = self._get_address(bytes)
         self.file_object.seek(address)
-        return (address, self.file_object.read(self.data._size * self.probe_size))
+        return (address,
+            self.file_object.read(self.data.size_ * self.probe_size))
 
     def _find_by_bytes(self, data_bytes, lookup_bytes):
         if data_bytes not in lookup_bytes:
             return None
         index = lookup_bytes.find(data_bytes)
         while index != -1:
-            if index % self.data._size == 0:
+            if index % self.data.size_ == 0:
                 return index
             index = lookup_bytes.find(data_bytes, index + 1)
         return None
 
     def _get_address(self, bytes):
         slot    = int(md5(bytes).hexdigest(), 16) % self.range
-        offset  = slot * self.data._size
+        offset  = slot * self.data.size_
         return self.address + self.long_sz + offset
 
     def __contains__(self, data):

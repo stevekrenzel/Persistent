@@ -1,14 +1,17 @@
-###############################################################################
-# The author or authors of this code dedicate any and all copyright interest in
-# this code to the public domain. We make this dedication for the benefit of
-# the public at large and to the detriment of our heirs and successors. We
-# intend this dedication to be an overt act of relinquishment in perpetuity of
-# all present and future rights to this code under copyright law.
-###############################################################################
-
 from Persistent.Property import Property
 
 class IntegerProperty(Property):
+    """ The IntegerProperty class is used to represent integer fields
+    in Data objects.
+
+    >>> i = IntegerProperty(4294967295)
+    >>> i.get_default()
+    4294967295
+
+    """
+
     def __init__(self, default=0, key=False):
-        Property.__init__(self, "I", default, key)
+        """ Initializes the IntegerProperty. """
+
+        Property.__init__(self, "i", default, key)
 

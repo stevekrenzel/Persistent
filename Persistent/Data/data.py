@@ -1,74 +1,63 @@
-###############################################################################
-# The author or authors of this code dedicate any and all copyright interest in
-# this code to the public domain. We make this dedication for the benefit of
-# the public at large and to the detriment of our heirs and successors. We
-# intend this dedication to be an overt act of relinquishment in perpetuity of
-# all present and future rights to this code under copyright law.
-###############################################################################
-
 from struct import pack, unpack, calcsize
-from Persistent.Data.property import Property
-from itertools import izip
+from Persistent.Property import Property, IntegerProperty
+from zlib import crc32
 
 class Data:
+    """ Add doc strings and kill TODOs """
     #TODO add byte to determine what vals are set and which aren't
     #TODO add crc32
     def __init__(self, _parent=None, _bytes=None, _file=None,  **kwargs):
         if "_names" not in self.__class__.__dict__:
-            names      = []
-            properties = []
-            keys       = []
-            key_names  = []
-            key_fmt    = ""
-            size       = 0
-            format     = ""
-            for name, property in sorted(self.__class__.__dict__.items()):
-                if isinstance(property, Property):
-                    if property.key == True:
-                        keys.append((name, property))
-                        key_fmt += property.format
-                    else:
-                        names.append(name)
-                        properties.append(property)
-            if len(keys) != 0:
-                # We require the key bits to be at the start of the data
-                key_names  = [k[0] for k in keys]
-                key_props  = [k[1] for k in keys]
-                names      = key_names + names
-                properties = key_props + properties
-            self.__class__._names      = names
-            self.__class__._properties = properties
-            self.__class__._keys       = set(key_names) if len(keys) != 0 else None
-            self.__class__._key_fmt    = key_fmt
-            self.__class__._size       = sum(p.size for p in properties)
-            self.__class__._format     = "".join(p.format for p in properties)
-        self._file = _file
+            # TODO change _set IntegerProperty  to BoolProperty
+            meta_names = ["_crc32", "_is_set"]
+            meta_props = [IntegerProperty(), IntegerProperty()]
+
+            # TODO we have to treat keys, props, and meta as 3 different groups
+            # the bytes must be appended after packing due to byte alignment
+            # This can also be achieved by storing the 3 formats, packing the properties
+            # and appending the bytes together
+            is_property = lambda x: isinstance(x[1], Property)
+            key_tup     = lambda x: (not x[1].key, x[0])
+            key_cmp     = lambda x, y: cmp(key_tup(x), key_tup(y))
+            items       = filter(is_property, self.__class__.__dict__.items())
+            names       = sorted(items, key_cmp)
+
+            self.__class__._names    = names
+            self.__class__._key_fmt  = "".join(x[1].format for x in names if x[1].key == True)
+            self.__class__._format   = "".join(x[1].format for x in names)
+            self.__class__.size_     = calcsize(self._format)
+            self.__class__._keys     = self.__class__._key_fmt != ""
+        self._file   = _file
         self._parent = _parent
         if _bytes == None:
-            for name, property in izip(self._names, self.__class__._properties):
-                setattr(self, name, kwargs.get(name, property.get_default(self._file)))
+            for name, property_ in self._names:
+                value = kwargs.get(name, property_.get_default(self._file))
+                setattr(self, name, value)
         else:
             self.load(_bytes)
 
     def load(self, bytes):
         values = unpack(self._format, bytes)
-        for name, value, property in izip(self._names, values, self._properties):
-            setattr(self, name, property.unpack(value, self._file))
+        for (name, property_), value in zip(self._names, values):
+            setattr(self, name, property_.unpack(value, self._file))
 
     def unload(self):
-        properties = [property.pack(getattr(self, name)) \
-                      for name, property in izip(self._names, self._properties)]
-        return pack(self._format, *properties)
+        properties = [property_.pack(getattr(self, name))
+                      for name, property_ in self._names]
+        bytes = pack(self._format, *properties)
+        return bytes
 
     def unload_key(self):
-        properties = [property.pack(getattr(self, name)) \
-                      for name, property in izip(self._names, self._properties)
-                      if name in self._keys]
+        # TODO Can we safely unload key due to pack padding?
+        properties = [property_.pack(getattr(self, name)) \
+                      for name, property_ in self._names
+                      if property_.key == True]
         return pack(self._key_fmt, *properties)
 
     def commit(self):
         self._parent.commit(self)
 
     def __str__(self):
-        ret = ", ".join("%s: %s"%(name, getattr(self, name)) for name in self._names)
+        rep = lambda x: "%s: %s" % (x, getattr(self, x))
+        ret = ", ".join(rep(name) for name, property in self._names)
         return "{" + ret + "}"

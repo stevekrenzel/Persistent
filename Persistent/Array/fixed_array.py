@@ -1,17 +1,9 @@
-###############################################################################
-# The author or authors of this code dedicate any and all copyright interest in
-# this code to the public domain. We make this dedication for the benefit of
-# the public at large and to the detriment of our heirs and successors. We
-# intend this dedication to be an overt act of relinquishment in perpetuity of
-# all present and future rights to this code under copyright law.
-###############################################################################
-
 import os
 from struct import pack, unpack, calcsize
 
 class FixedArray:
 
-    def __init__(self, data, file_name, file_object=None, allocation=1024, address=None):
+    def __init__(self, data, file_name=None, file_object=None, allocation=1024, address=None):
         if file_name != None:
             if not os.path.exists(file_name):
                 # Create the file if it doesn't exist
@@ -20,11 +12,10 @@ class FixedArray:
                 # If the file exists already and no address is supplied 
                 address = 0
             file_object = open(file_name, 'r+b')
-
         data() # Initialize, just in case
         self.file_object     = file_object
         self.data            = data
-        self.size            = allocation*data._size
+        self.size            = allocation*data.size_
         self.address         = address
         # TODO Write all construction information to disk
 
@@ -68,23 +59,23 @@ class FixedArray:
     def __getitem__(self, index):
         address = self._get_address(index)
         self.file_object.seek(address)
-        bytes = self.file_object.read(self.data._size)
-        d = self.data(self, bytes)
-        d._fixed_array_index = index
-        return d
+        bytes = self.file_object.read(self.data.size_)
+        data = self.data(self, bytes)
+        data.fixed_array_index_ = index
+        return data
 
     def commit(self, data, index=None):
         if index == None:
-          if hasattr(data, '_fixed_array_index'):
-            index = data._fixed_array_index
-          else:
-            raise Exception("Data has no associated index")
+            if hasattr(data, 'fixed_array_index_'):
+                index = data.fixed_array_index_
+            else:
+                raise Exception("Data has no associated index")
         address = self._get_address(index)
         self.file_object.seek(address)
         self.file_object.write(data.unload())
 
     def _get_address(self, index):
-        return self.address + calcsize("q") + (index * self.data._size)
+        return self.address + calcsize("q") + (index * self.data.size_)
 
     def close(self):
         self.file_object.close()

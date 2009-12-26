@@ -1,17 +1,9 @@
-###############################################################################
-# The author or authors of this code dedicate any and all copyright interest in
-# this code to the public domain. We make this dedication for the benefit of
-# the public at large and to the detriment of our heirs and successors. We
-# intend this dedication to be an overt act of relinquishment in perpetuity of
-# all present and future rights to this code under copyright law.
-###############################################################################
-
 import os
 from struct import pack, unpack, calcsize
 
 class DynamicCollection:
 
-    def __init__(self, file_name, file_object, initial_allocation=1024, address=None):
+    def __init__(self, file_name, file_object, address=None):
         if file_name != None:
             if not os.path.exists(file_name):
                 # Create the file if it doesn't exist
@@ -21,7 +13,7 @@ class DynamicCollection:
                 address = 0
             file_object = open(file_name, 'r+b')
         self.file_object        = file_object
-        self.initial_allocation = initial_allocation
+        self.initial_allocation = 1024
         self.pointers_format    = "q" * 32
         self.pointers           = [-1] * 32
         self.address            = address
@@ -43,17 +35,19 @@ class DynamicCollection:
             self.file_object.seek(self.address)
 
             # Read in the pointers
-            self.pointers = list(unpack(self.pointers_format, self.file_object.read(calcsize(self.pointers_format))))
+            self.pointers = list(unpack(self.pointers_format,
+                self.file_object.read(calcsize(self.pointers_format))))
 
             # Load collections
-            self.collections = [self.__create_collection__(address=i) for i in self.pointers if i > -1]
+            self.collections = [self._create_collection(address=i)
+                for i in self.pointers if i > -1]
 
     def _add_collection(self):
         # Find the position of the next null pointer
         position = self.pointers.index(-1)
 
         # We allocate the array
-        new_collection = self.__create_collection__()
+        new_collection = self._create_collection()
 
         # Update our pointers and sizes
         self.pointers[position] = new_collection.address
