@@ -15,7 +15,7 @@ class FixedArray:
         data() # Initialize, just in case
         self.file_object     = file_object
         self.data            = data
-        self.size            = allocation*data.size_
+        self.size            = allocation*data._size
         self.address         = address
         # TODO Write all construction information to disk
 
@@ -59,7 +59,7 @@ class FixedArray:
     def __getitem__(self, index):
         address = self._get_address(index)
         self.file_object.seek(address)
-        bytes = self.file_object.read(self.data.size_)
+        bytes = self.file_object.read(self.data._size)
         data = self.data(self, bytes)
         data.fixed_array_index_ = index
         return data
@@ -75,7 +75,7 @@ class FixedArray:
         self.file_object.write(data.unload())
 
     def _get_address(self, index):
-        return self.address + calcsize("q") + (index * self.data.size_)
+        return self.address + calcsize("q") + (index * self.data._size)
 
     def close(self):
         self.file_object.close()

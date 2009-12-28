@@ -10,8 +10,8 @@ class IntegerProperty(Property):
 
     """
 
-    def __init__(self, default=0, key=False):
+    def __init__(self, default=0, **kwargs):
         """ Initializes the IntegerProperty. """
 
-        Property.__init__(self, "i", default, key)
+        Property.__init__(self, "i", default, **kwargs)
 

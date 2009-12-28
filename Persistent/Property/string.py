@@ -11,7 +11,7 @@ class StringProperty(Property):
 
     """
 
-    def __init__(self, length, default="", key=False):
+    def __init__(self, length, default="", **kwargs):
         """ Initializes the String Property.
 
         The length parameter determines the maximum length of the
@@ -32,7 +32,7 @@ class StringProperty(Property):
         # properties to be represented by exactly one ctype, and "I10s" uses
         # two ("I" and "s").
         int_len = calcsize("I")
-        Property.__init__(self, "%ds" % (length + int_len), default, key)
+        Property.__init__(self, "%ds" % (length + int_len), default, **kwargs)
 
     def unpack(self, value, file_object=None):
         """ Given a series of bytes, will interpret those bytes as an int

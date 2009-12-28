@@ -24,7 +24,7 @@ class Property:
     1.0
 
     """
-    def __init__(self, format, default, key=False, meta=False):
+    def __init__(self, format, default, key=False):
         """ Initializes a new Data property.
 
         The format follows the struct format described here:
@@ -44,8 +44,8 @@ class Property:
         """
 
         self.format  = format
-        self.key     = key
-        self.meta    = meta
+        self.is_key  = key
+        self.is_data = not self.is_key
         self.default = default
         self.size    = calcsize(self.format)
 
