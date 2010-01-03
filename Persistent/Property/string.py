@@ -5,13 +5,9 @@ class StringProperty(Property):
     """ The StringProperty class is used to represent fixed length strings in
     Data objects.
 
-    >>> s = StringProperty(10, 'default')
-    >>> s.get_default()
-    'default'
-
     """
 
-    def __init__(self, length, default="", **kwargs):
+    def __init__(self, length, **kwargs):
         """ Initializes the String Property.
 
         The length parameter determines the maximum length of the
@@ -25,23 +21,19 @@ class StringProperty(Property):
         """
 
         self.length = length
-        # We add 4 to the length, which uses 4 bytes to represent
-        # an int which tracks the length of the string. Pascal strings
+        # An int tracks the length of the string. Pascal strings
         # were simply too short, with a max length of 255 chars.
-        # We can't do something like "I10s" because Data expects the
-        # properties to be represented by exactly one ctype, and "I10s" uses
-        # two ("I" and "s").
-        int_len = calcsize("I")
-        Property.__init__(self, "%ds" % (length + int_len), default, **kwargs)
+        Property.__init__(self, "I%ds" % (length), **kwargs)
 
-    def unpack(self, value, file_object=None):
-        """ Given a series of bytes, will interpret those bytes as an int
-        representing the length of a string, followed by the bytes for the
-        string. It will then return the determined string.
+    def unpack(self, bytes, file_object=None):
+        """ Given a series of bytes, unpack will interpret the first byte as a
+        boolean to see if the string is None or an actual value. The
+        remaining bytes are interpreted as an int representing the length of
+        the string, followed by the bytes representing the string.
+
 
         >>> s = StringProperty(15)
-        >>> s.unpack(s.pack('Persitent'))
-        'Persistent'
+        >>> s.unpack(s.pack(None))
 
         >>> s = StringProperty(10)
         >>> s.unpack(s.pack('Persistent'))
@@ -53,35 +45,40 @@ class StringProperty(Property):
 
         """
 
-        fmt = "I%ds" % (self.length)
-        length, string = unpack(fmt, value)
-        return string[:length]
+        is_set = ord(bytes[0]) != 0
+        if is_set:
+            length, string = unpack(self.format, bytes[1:])
+            return string[:length]
+        return None
 
     def pack(self, value, file_object=None):
         """ Given a string, pack() will convert the string into bytes
-        representing the length of the string followed by the bytes
-        representing the characters of the string. These bytes will then be
-        returned to be written to disk. These bytes will later be consumed by
-        unpack().
+        representing three things. 1) The first byte is zero if the value
+        is None, otherwise it is one 2) The length of the string 3) The bytes
+        representing the characters of the string.
 
         Note that if the value is greater than the maximum length specified
         when the StringProperty was created, any overflow will be ignored.
 
+        >>> s = StringProperty(5)
+        >>> s.pack(None)
+        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'
+
         >>> s = StringProperty(15)
         >>> s.pack('Persistent')
-        '\n\x00\x00\x00Persistent\x00\x00\x00\x00\x00'
+        '\\x01\\n\\x00\\x00\\x00Persistent\\x00\\x00\\x00\\x00\\x00'
 
         >>> s = StringProperty(10)
         >>> s.pack('Persistent')
-        '\n\x00\x00\x00Persistent'
+        '\\x01\\n\\x00\\x00\\x00Persistent'
 
         >>> s = StringProperty(5)
         >>> s.pack('Persistent')
-        ''\x05\x00\x00\x00Persi'
+        '\\x01\\x05\\x00\\x00\\x00Persi'
 
         """
 
-        if len(value) > self.length:
-            value = value[:self.length]
-        fmt = "I%ds" % (self.length)
-        return pack(fmt, len(value), value)
+        if value == None:
+            return self.default
+        value = value[:self.length]
+        return chr(1) + pack(self.format, len(value), value)

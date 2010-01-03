@@ -3,12 +3,13 @@ from Persistent.Hashset.fixed_set import FixedSet
 
 class Hashset(DynamicCollection):
 
-    def __init__(self, data, file_name, file_object=None, address=None):
+    def __init__(self, data, file_name=None, file_object=None, address=None):
         self.data = data
         DynamicCollection.__init__(self, file_name, file_object, address)
 
     def _create_collection(self, address=None):
-        return FixedSet(self.data, None, self.file_object, self.initial_allocation, address=address)
+        allocation = (2**len(self.collections)) * self.initial_allocation
+        return FixedSet(self.data, None, self.file_object, allocation, address=address)
 
     def add(self, data):
         if self.collections[-1].set(data) == True:

@@ -61,9 +61,6 @@ class DynamicCollection:
         # Add our new array to our list of arrays
         self.collections.append(new_collection)
 
-        # Each new allocation doubles the size of the previous one
-        self.initial_allocation = 2 * self.initial_allocation
-
     def _create_collection(self, address=None):
         pass
 

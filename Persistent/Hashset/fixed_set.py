@@ -16,7 +16,10 @@ class FixedSet(FixedArray):
         # TODO Write all construction information to disk
 
     def set(self, data):
-        bytes        = data.unload_key() if data._keys else data.unload()
+        if getattr(data, '_is_map', False):
+            bytes = data.unload_key()
+        else:
+            bytes = data.unload()
         address, raw = self._find_bytes(bytes)
         index        = self._find_by_bytes(bytes, raw)
         if index != None:
@@ -32,7 +35,10 @@ class FixedSet(FixedArray):
         return False
 
     def get(self, data):
-        bytes = data.unload_key() if data._keys else data.unload()
+        if getattr(data, '_is_map', False):
+            bytes = data.unload_key()
+        else:
+            bytes = data.unload()
         address, raw = self._find_bytes(bytes)
         index = self._find_by_bytes(bytes, raw)
         if index != None:

@@ -1,8 +1,9 @@
+import os
 from Persistent import Hashmap, Data, IntegerProperty, StringProperty
 
 class PhoneEntry(Data):
-    name  = StringProperty(10, key=True)
-    phone = IntegerProperty()
+    name    = StringProperty(10, key=True)
+    phone   = IntegerProperty()
 
 phonebook = Hashmap(PhoneEntry, 'phonebook.db')
 
@@ -13,3 +14,4 @@ print phonebook.get(PhoneEntry(name="Steve"))
 print phonebook.get(PhoneEntry(name="Bob"))
 
 phonebook.close()
+os.remove('phonebook.db')

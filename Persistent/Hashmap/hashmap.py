@@ -4,6 +4,7 @@ class Hashmap(Hashset):
     """We just give it a different name for cleaner code right now."""
 
     def set(self, data):
+        data._is_map = True
         self.add(data)
 
     def __setitem__(self, key, value):
@@ -18,5 +19,7 @@ class Hashmap(Hashset):
         if len(self.data._keys) != 1:
             raise Exception()
         key_name = self.data._props[0][0]
-        kwargs = {key_name : key}
-        return self.get(self.data(**kwargs))
+        kwargs   = {key_name : key}
+        data     = self.data(**kwargs)
+        data._is_map = True
+        return self.get(data)
