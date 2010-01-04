@@ -7,6 +7,7 @@ for mod in ("Persistent.Property.property",
             "Persistent.Property.string"  ,
             "Persistent.Array.fixed_array",
             "Persistent.Array.array",
+            "Persistent.Hashset.fixed_set",
             "Persistent.Data.data"        ):
     suite.addTest(doctest.DocTestSuite(mod))
 runner = unittest.TextTestRunner()

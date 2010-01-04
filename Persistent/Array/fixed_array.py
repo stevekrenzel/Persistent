@@ -88,11 +88,12 @@ class FixedArray:
         # When the Data object is first initialized, it sets up certain
         # things in the class. We force the initialization here.
         data()
-        self.file_object     = file_object
-        self.data            = data
-        self.allocation      = allocation
-        self.size            = allocation * data._size
-        self.address         = address
+        self.file_object = file_object
+        self.data        = data
+        self.allocation  = allocation
+        self.size        = allocation * data._size
+        self.address     = address
+        self.long_sz     = calcsize("q")
 
         # We allocate space at the end of the file if there is no address
         if self.address == None:
@@ -110,7 +111,7 @@ class FixedArray:
             self.file_object.seek(self.address)
 
             # Set the size and allocation of the array
-            self.size       = unpack("q", self.file_object.read(calcsize("q")))[0]
+            self.size       = unpack("q", self.file_object.read(self.long_sz))[0]
             self.allocation = self.size / self.data._size
 
 
@@ -246,11 +247,11 @@ class FixedArray:
 
         """
 
-        # We add calcsize('q') because the fisrt few bytes are the length of
+        # We add long_sz because the fisrt few bytes are the length of
         # the array
         if index >= self.allocation:
             raise Exception("Index is out of bounds")
-        return self.address + calcsize("q") + (index * self.data._size)
+        return self.address + self.long_sz + (index * self.data._size)
 
     def close(self):
         """ Closes the array's file object. """
