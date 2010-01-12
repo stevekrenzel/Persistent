@@ -8,6 +8,8 @@ for mod in ("Persistent.Property.property",
             "Persistent.Array.fixed_array",
             "Persistent.Array.array",
             "Persistent.Hashset.fixed_set",
+            "Persistent.Hashset.hashset",
+            "Persistent.Hashmap.hashmap",
             "Persistent.Data.data"        ):
     suite.addTest(doctest.DocTestSuite(mod))
 runner = unittest.TextTestRunner()

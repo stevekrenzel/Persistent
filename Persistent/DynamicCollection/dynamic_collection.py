@@ -3,7 +3,29 @@ from struct import pack, unpack, calcsize
 
 class DynamicCollection:
 
-    def __init__(self, file_name, file_object, address=None):
+    def __init__(self, data, file_name=None, file_object=None, address=None):
+        """ Initializes a new dynamic collection.
+
+        Data is the class for the elements that will be stored in this collection.
+
+        File_name is the name of the file that contains, or will contain,
+        the collection. This is an optional parameter, but must be specified
+        if a file_object isn't specified.
+
+        File_object is the file object that contains, or will contain,
+        the collection. This is an optional parameter, but must be specified
+        if a file_name isn't specified.
+
+        Address is the address in the file that the collection starts at. If
+        no address is supplied, space for a new collection is allocated at the
+        end of the file.
+
+        """
+        # Data objects have certain varibles, such as the size of the object,
+        # initialized the first time the constructoris called. Here we force
+        # these variables to be intiialized.
+        data()
+        self.data = data
         if file_name != None:
             if not os.path.exists(file_name):
                 # Create the file if it doesn't exist
@@ -62,7 +84,9 @@ class DynamicCollection:
         self.collections.append(new_collection)
 
     def _create_collection(self, address=None):
-        pass
+        allocation = (2**len(self.collections)) * self.initial_allocation
+        fixed = self.fixed_collection
+        return fixed(data=self.data, file_name=None, file_object=self.file_object, allocation=allocation, address=address)
 
     def close(self):
         self.file_object.close()

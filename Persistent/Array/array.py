@@ -105,38 +105,7 @@ class Array(DynamicCollection):
 
     """
 
-    def __init__(self, data, file_name=None, file_object=None, address=None):
-        """ Initializes a new array.
-
-        Data is the class for the elements that will be stored in this array
-
-        File_name is the name of the file that contains, or will contain,
-        the array. This is an optional parameter, but must be specified
-        if a file_object isn't specified.
-
-        File_object is the file object that contains, or will contain,
-        the array. This is an optional parameter, but must be specified
-        if a file_name isn't specified.
-
-        Address is the address in the file that the array starts at. If
-        no address is supplied, space for a new array is allocated at the
-        end of the file.
-
-        """
-        # Data objects have certain varibles, such as the size of the object,
-        # initialized the first time the constructoris called. Here we force
-        # these variables to be intiialized.
-        data()
-        self.data = data
-        DynamicCollection.__init__(self, file_name, file_object, address)
-
-    def _create_collection(self, address=None):
-        """ This is called when the previous array has become full and we need
-        to add a new one.
-
-        """
-        allocation = (2**len(self.collections)) * self.initial_allocation
-        return FixedArray(self.data, None, self.file_object, allocation, address)
+    fixed_collection = FixedArray
 
     def _get_array_index(self, index):
         """ Since our array is really an array of fixed size arrays, this
