@@ -198,7 +198,3 @@ class Array(DynamicCollection):
             self._add_collection()
             # Recurse and try setting again
             return self[index]
-
-    def close(self):
-        """ Closes the associated file object for this array. """
-        self.file_object.close()

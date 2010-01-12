@@ -155,7 +155,3 @@ class Hashset(DynamicCollection):
     def __contains__(self, data):
         """ Returns whether or not data is in the set. """
         return self.get(data) != None
-
-    def close(self):
-        """ Closes the associated file object for this set. """
-        self.file_object.close()
