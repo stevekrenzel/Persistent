@@ -22,7 +22,8 @@ def test(container, setter, getter):
     t = time()
     for i in xrange(size):
         setter(users, i)
-    print time() - t
+    t = time() - t
+    print "Writing: %d" % (size / t)
 
     t = time()
     for i in xrange(size):
@@ -31,7 +32,8 @@ def test(container, setter, getter):
             users.close()
             os.remove(db)
             raise Exception("FAILED: %d %s" % (i, str(user)))
-    print time() - t
+    t = time() - t
+    print "Reading: %d" % (size / t)
 
     users.close()
     os.remove(db)
@@ -49,4 +51,4 @@ test(Hashset, setter, lambda x, y: x.get(User(age=y)))
 print "\nHashmap"
 def setter(x, y):
     x[y] = y
-test(Hashmap, setter, lambda x, y: x[y])
+test(Hashmap, setter, lambda x, y: x.get(User(id=y)))
